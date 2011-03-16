@@ -31,57 +31,32 @@ function webtrends_footer() {
     return;
   }
 
-  // Save in directory used for JS aggregation, so that files are deleted by
-  // drupal_clear_js_cache().
-  $js_path = file_create_path('js');
-  $include1_js_path = $js_path . '/webtrends_include1.js';
-  if (!file_exists($include1_js_path)) {
-    // The following is copied from include1.js. The script is written to a
-    // temporary file instead of being inserted inline for several reasons:
-    // - It allows the script to be included when Drupal aggregates JavaScript
-    //   files into one file.
-    // - drupal_add_js() inserts inline script after included files, but
-    //   include1.js must appear before dcs_tag.js in the HTML.
-    // - Data returned by hook_footer() is inserted above scripts inserted by
-    //   other modules using drupal_add_js(), but we want the Webtrends script
-    //   to appear as late as possible in order to not delay scripts that are
-    //   part of the UI.
     $script = <<<EOT
-// START OF SmartSource Data Collector TAG
-// Copyright (c) 1996-2006 WebTrends Inc.  All rights reserved.
-// DateTime: 2006/03/01 12:51:54
-var gDomain="$domain";
-var gDcsId="$dcs_id";
-var gFpc="WT_FPC";
-var gConvert=true;
-if ((typeof(gConvert)!="undefined")&&gConvert&&(document.cookie.indexOf(gFpc+"=")==-1)&&(document.cookie.indexOf("WTLOPTOUT=")==-1)){
-  document.write("<SCR"+"IPT TYPE='text/javascript' SRC='"+"http"+(window.location.protocol.indexOf('https:')==0?'s':'')+"://"+gDomain+"/"+gDcsId+"/wtid.js"+"'><\/SCR"+"IPT>");
-}
+var _tag=new WebTrends();
+_tag.fpcdom = ".$domain";
+_tag.dcsid = "$dcs_id";
+_tag.dcsGetId();
 
-// Callback for WebTrends analytics tool.
-function dcsAdSearch() {
+_tag.dcsCustom=function(){
   if (typeof Drupal.settings.tingSearch != 'undefined') {
-    WT.oss = encodeURIComponent(Drupal.settings.tingSearch.keys);
+    _tag.WT.oss = encodeURIComponent(Drupal.settings.tingSearch.keys);
     // The result count is unknown when the page is loaded, so we just say 1.
-    WT.oss_r = 1;
+    tag.WT.oss_r = 1;
   }
 }
+_tag.dcsCollect();
 EOT;
 
-    file_check_directory($js_path, FILE_CREATE_DIRECTORY);
-    file_save_data($script, $include1_js_path, FILE_EXISTS_REPLACE);
-  }
-
-  // Both scripts use document.write(), so they cannot be inserted using
-  // "defer".
-  drupal_add_js($include1_js_path, 'module', 'footer');
-  drupal_add_js(drupal_get_path('module', 'webtrends') . '/dcs_tag.js', 'module', 'footer');
-
-  $html = <<<EOT
+    $html = <<<EOT
 <noscript>
-<img alt="" border="0" name="DCSIMG" width="1" height="1" src="https://$domain/$dcs_id/njs.gif?dcsuri=/nojavascript&amp;WT.js=No&amp;WT.tv=8.0.2" />
+<div><img alt="DCSIMG" id="DCSIMG" width="1" height="1" src="http://visionize10.visionize.dk/$dcsid/njs.gif?dcsuri=/nojavascript&amp;WT.js=No&amp;WT.tv=9.3.0&amp;WT.dcssip=$domain"/></div>
 </noscript>
 EOT;
+
+  // We're relying on Drupal inserting inline js after references to
+  // external files.
+  drupal_add_js($script, 'inline', 'footer');
+  drupal_add_js(drupal_get_path('module', 'webtrends') . '/webtrends.js', 'module', 'footer');
 
   return $html;
 }
