@@ -1,5 +1,4 @@
 <?php
-// $Id$
 
 /**
  * Implementation of hook_menu().
@@ -49,7 +48,7 @@ EOT;
 
     $html = <<<EOT
 <noscript>
-<div><img alt="DCSIMG" id="DCSIMG" width="1" height="1" src="http://visionize10.visionize.dk/$dcsid/njs.gif?dcsuri=/nojavascript&amp;WT.js=No&amp;WT.tv=9.3.0&amp;WT.dcssip=$domain"/></div>
+<div><img alt="DCSIMG" id="DCSIMG" width="1" height="1" src="http://visionize10.visionize.dk/$dcs_id/njs.gif?dcsuri=/nojavascript&amp;WT.js=No&amp;WT.tv=9.3.0&amp;WT.dcssip=$domain"/></div>
 </noscript>
 EOT;
 
