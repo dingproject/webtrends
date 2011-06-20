@@ -40,7 +40,7 @@ _tag.dcsCustom=function(){
   if (typeof Drupal.settings.tingSearch != 'undefined') {
     _tag.WT.oss = encodeURIComponent(Drupal.settings.tingSearch.keys);
     // The result count is unknown when the page is loaded, so we just say 1.
-    tag.WT.oss_r = 1;
+    _tag.WT.oss_r = 1;
   }
 }
 _tag.dcsCollect();
