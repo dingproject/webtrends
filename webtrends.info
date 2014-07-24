@@ -2,4 +2,3 @@
 name = WebTrends
 description = Adds WebTrends JavaScript tracking code to all your site's pages.
 core = 6.x
-

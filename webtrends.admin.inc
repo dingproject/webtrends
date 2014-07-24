@@ -21,6 +21,13 @@ function webtrends_admin_settings_form($form_state) {
     '#default_value' => variable_get('webtrends_dcs_id', FALSE),
   );
 
+  $form['webtrends_error_pages'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Enable "Error pages" parameters'),
+    '#description' => t('Add webtrends error page parameters to url, for 404 pages'),
+    '#default_value' => variable_get('webtrends_error_pages', FALSE),
+  );
+
   // Delete the generated file js/webtrends_include1.js.
   $form['#submit'][] = 'drupal_clear_js_cache';
 

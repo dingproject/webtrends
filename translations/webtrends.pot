@@ -11,7 +11,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
-"POT-Creation-Date: 2011-01-19 14:29+0100\n"
+"POT-Creation-Date: 2014-07-23 14:43+0200\n"
 "PO-Revision-Date: YYYY-mm-DD HH:MM+ZZZZ\n"
 "Last-Translator: NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <EMAIL@ADDRESS>\n"
@@ -25,7 +25,7 @@ msgid "Hostname"
 msgstr ""
 
 #: webtrends.admin.inc:13
-msgid "The hostname of the WebTrends server (gDomain)."
+msgid "The hostname of the tracked site."
 msgstr ""
 
 #: webtrends.admin.inc:19
@@ -33,7 +33,15 @@ msgid "Site ID"
 msgstr ""
 
 #: webtrends.admin.inc:20
-msgid "The site identification key (gDcsId)."
+msgid "The site identification key."
+msgstr ""
+
+#: webtrends.admin.inc:26
+msgid "Enable \"Error pages\" parameters"
+msgstr ""
+
+#: webtrends.admin.inc:27
+msgid "Add webtrends error page parameters to url, for 404 pages"
 msgstr ""
 
 #: webtrends.module:30
@@ -44,11 +52,11 @@ msgstr ""
 msgid "Webtrends module not configured."
 msgstr ""
 
-#: webtrends.module:11 webtrends.info:0
+#: webtrends.module:10 webtrends.info:0
 msgid "WebTrends"
 msgstr ""
 
-#: webtrends.module:12
+#: webtrends.module:11
 msgid "Settings for the WebTrends analytics tool."
 msgstr ""
 
