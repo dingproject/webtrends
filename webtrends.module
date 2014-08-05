@@ -24,16 +24,61 @@ function webtrends_menu() {
 function webtrends_footer() {
   $domain = variable_get('webtrends_domain', FALSE);
   $dcs_id = variable_get('webtrends_dcs_id', FALSE);
+  $old_dcs_id = variable_get('webtrends_old_dcs_id', FALSE);
+  $script_path = '/' . drupal_get_path('module', 'webtrends') . '/webtrends.min.js';
 
   if (!$domain || !$dcs_id) {
     watchdog('webtrends', 'Webtrends module not configured.', array(), WATCHDOG_NOTICE);
     return;
   }
 
+  // Insert metatags with search info.
+  $script = <<<EOT
+    (function(){
+      if (typeof Drupal.settings.tingSearch != 'undefined') {
+        var m=document.createElement("meta"); m.name="WT.oss"; m.content=Drupal.settings.tingSearch.keys;
+        var m2=document.getElementsByTagName("meta")[0]; m2.parentNode.insertBefore(m,m2);
+        var m=document.createElement("meta"); m.name="WT.oss_r"; m.content="1";
+        m2.parentNode.insertBefore(m,m2);
+      }
+    }());
+EOT;
+  // Webtrends specific. Taken from webtrends.load.js
+  $script .= <<<EOT
+    window.webtrendsAsyncInit=function(){
+        var dcs=new Webtrends.dcs().init({
+            dcsid:"$dcs_id",
+            domain:"statse.webtrendslive.com",
+            timezone:1,
+            i18n:true,
+            adimpressions:true,
+            adsparam:"WT.ac",
+            offsite:true,
+            download:true,
+            downloadtypes:"avi,csv,doc,docx,exe,gzip,mp3,mp4,pdf,ppt,pptx,rar,txt,wav,xls,xlsx,zip",
+            onsitedoms:"www.$domain",
+            fpcdom:".$domain",
+            plugins:{
+                hm:{src:"//s.webtrends.com/js/webtrends.hm.js"},
+                facebook:{src:"//s.webtrends.com/js/webtrends.fb.js"},
+                yt:{src:"//s.webtrends.com/js/webtrends.yt.js"}
+            }
+            }).track();
+    };
+    (function(){
+        var s=document.createElement("script"); s.async=true; s.src="$script_path";
+        var s2=document.getElementsByTagName("script")[0]; s2.parentNode.insertBefore(s,s2);
+    }());
+EOT;
+
+  drupal_add_js($script, 'inline', 'footer');
+
+  // In the transition phase, the old js needs to be enabled aswell as the new.
+  if ($old_dcs_id) {
     $script = <<<EOT
 var _tag=new WebTrends();
 _tag.fpcdom = ".$domain";
-_tag.dcsid = "$dcs_id";
+_tag.dcsid = "$old_dcs_id";
 _tag.dcsGetId();
 
 _tag.dcsCustom=function(){
@@ -48,14 +93,31 @@ EOT;
 
     $html = <<<EOT
 <noscript>
-<div><img alt="DCSIMG" id="DCSIMG" width="1" height="1" src="http://visionize10.visionize.dk/$dcs_id/njs.gif?dcsuri=/nojavascript&amp;WT.js=No&amp;WT.tv=9.3.0&amp;WT.dcssip=$domain"/></div>
+<div><img alt="DCSIMG" id="DCSIMG" width="1" height="1" src="http://visionize10.visionize.dk/$old_dcs_id/njs.gif?dcsuri=/nojavascript&amp;WT.js=No&amp;WT.tv=9.3.0&amp;WT.dcssip=$domain"/></div>
 </noscript>
 EOT;
 
-  // We're relying on Drupal inserting inline js after references to
-  // external files.
-  drupal_add_js($script, 'inline', 'footer');
-  drupal_add_js(drupal_get_path('module', 'webtrends') . '/webtrends.js', 'module', 'footer');
+    // We're relying on Drupal inserting inline js after references to
+    // external files.
+    drupal_add_js($script, 'inline', 'footer');
+    drupal_add_js(drupal_get_path('module', 'webtrends') . '/webtrends.v9.3.0.js', 'module', 'footer');
 
-  return $html;
+    return $html;
+  }
+}
+
+/**
+ * Implements hook_init().
+ */
+function webtrends_init() {
+  // Webtrends require 2 parameters to be set on 404 pages, error_code and errorlink,
+  // if the page doesn't already have these, we redirect with the parameters added.
+  if(variable_get('webtrends_error_pages', FALSE) && !menu_get_item($_GET['q']) && !isset($_GET['error_code'])) {
+    $options = array(
+      'error_code' => '404',
+      'errorlink' => $_GET['q'],
+    );
+
+    drupal_goto($_GET['q'], $options);
+  }
 }
