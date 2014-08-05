@@ -21,6 +21,13 @@ function webtrends_admin_settings_form($form_state) {
     '#default_value' => variable_get('webtrends_dcs_id', FALSE),
   );
 
+  $form['webtrends_old_dcs_id'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Site ID'),
+    '#description' => t('The site identification key for the v9.3.0 js. Leave empty to disable v9.3.0.'),
+    '#default_value' => variable_get('webtrends_old_dcs_id', FALSE),
+  );
+
   $form['webtrends_error_pages'] = array(
     '#type' => 'checkbox',
     '#title' => t('Enable "Error pages" parameters'),

@@ -24,6 +24,7 @@ function webtrends_menu() {
 function webtrends_footer() {
   $domain = variable_get('webtrends_domain', FALSE);
   $dcs_id = variable_get('webtrends_dcs_id', FALSE);
+  $old_dcs_id = variable_get('webtrends_old_dcs_id', FALSE);
   $script_path = '/' . drupal_get_path('module', 'webtrends') . '/webtrends.min.js';
 
   if (!$domain || !$dcs_id) {
@@ -70,9 +71,39 @@ EOT;
     }());
 EOT;
 
-  // We're relying on Drupal inserting inline js after references to
-  // external files.
   drupal_add_js($script, 'inline', 'footer');
+
+  // In the transition phase, the old js needs to be enabled aswell as the new.
+  if ($old_dcs_id) {
+    $script = <<<EOT
+var _tag=new WebTrends();
+_tag.fpcdom = ".$domain";
+_tag.dcsid = "$old_dcs_id";
+_tag.dcsGetId();
+
+_tag.dcsCustom=function(){
+  if (typeof Drupal.settings.tingSearch != 'undefined') {
+    _tag.WT.oss = encodeURIComponent(Drupal.settings.tingSearch.keys);
+    // The result count is unknown when the page is loaded, so we just say 1.
+    _tag.WT.oss_r = 1;
+  }
+}
+_tag.dcsCollect();
+EOT;
+
+    $html = <<<EOT
+<noscript>
+<div><img alt="DCSIMG" id="DCSIMG" width="1" height="1" src="http://visionize10.visionize.dk/$old_dcs_id/njs.gif?dcsuri=/nojavascript&amp;WT.js=No&amp;WT.tv=9.3.0&amp;WT.dcssip=$domain"/></div>
+</noscript>
+EOT;
+
+    // We're relying on Drupal inserting inline js after references to
+    // external files.
+    drupal_add_js($script, 'inline', 'footer');
+    drupal_add_js(drupal_get_path('module', 'webtrends') . '/webtrends.v9.3.0.js', 'module', 'footer');
+
+    return $html;
+  }
 }
 
 /**
